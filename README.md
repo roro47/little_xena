@@ -1,4 +1,5 @@
 # little_xena
 
-Formalize imperial module.
-Maybe merging into big xena in the future.
+Formalize imperial math module.
+
+Just for practicing how to do it.
