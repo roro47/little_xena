@@ -3,6 +3,7 @@ import data.nat.gcd
 import tactic.find
 import tactic.tidy
 import algebra.gcd_domain
+import data.num.lemmas
 
 universes u v
 
@@ -10,11 +11,14 @@ theorem prop4 (a b : ℤ) (h : a ≠ 0 ∧ b ≠ 0) (k : ℤ):
 ∀ n : ℤ, int.gcd a b = int.gcd b (a - n*b) :=
 begin
   intro n,
-  have p₁ : k  ∣ int.gcd a b ↔ k ∣ a ∧ k ∣ b,
-    exact dvd_gcd_iff k a b,
-  have p₂ : k ∣ int.gcd b (a - n*b) ↔ k ∣ b ∧ k ∣ (a - n*b),
+  have p₁ : ∀ k : ℕ,  ↑k ∣ gcd a b ↔ ↑k ∣ a ∧ ↑k ∣ b,
+    intro k,
+    exact dvd_gcd_iff ↑k a b,
+  have p₂ : ∀ k : ℕ, ↑k ∣ gcd b (a - n*b) ↔ ↑k ∣ b ∧ ↑k ∣ (a - n*b),
+    intro k,
     exact dvd_gcd_iff k b (a - n*b),
-  have p₃ : k ∣ a ∧ k ∣ b ↔ k ∣ b ∧ k ∣ (a - n*b),
+  have p₃ : ∀ k : ℕ, ↑k ∣ a ∧ ↑k ∣ b ↔ ↑k ∣ b ∧ ↑k ∣ (a - n*b),
+    intro k,
     simp,
     apply iff.intro,
       assume left,
@@ -25,13 +29,32 @@ begin
         apply dvd_mul_of_dvd_right left.right,
       assume right,
         sorry,
-  have p₄ : k ∣ b ∧ k ∣ (a - n*b) ↔ k ∣ int.gcd b (a - n*b),
-    exact (dvd_gcd_iff k b (a - n*b)).symm,
-  have p₅ : k ∣ int.gcd a b ↔ k ∣ int.gcd b (a - n*b),
-    apply iff.trans (iff.trans p₁ p₃) p₂.symm,
-  have p₆ : int.gcd a b ∣ int.gcd b (a - n*b),
-      
+  have p₄ : ∀ k : ℕ, ↑k ∣ b ∧ ↑k ∣ (a - n*b) ↔ ↑k ∣ gcd b (a - n*b),
+    intro k,
+    exact (dvd_gcd_iff ↑k b (a - n*b)).symm,
+  have p₅ : ∀ k : ℕ, ↑k ∣ gcd a b ↔ ↑k ∣ gcd b (a - n*b),
+    intro k,
+    apply iff.trans (iff.trans (p₁ k) (p₃ k)) (p₂ k).symm,
+  have p₆ : ↑(int.gcd a b) ∣ ↑(int.gcd b (a - n*b)),
+    rw int.coe_gcd,
+    rw int.coe_gcd,
+    apply iff.elim_left (p₅ (int.gcd a b)),
+    apply dvd_refl,
+  have p₇ : ↑(int.gcd b (a - n*b)) ∣ ↑(int.gcd a b),
+    rw int.coe_gcd,
+    rw int.coe_gcd,
+    apply iff.elim_right (p₅ (int.gcd b (a - n*b))),
+    apply dvd_refl,
+  have p1 : ↑(int.gcd a b) = ↑(int.gcd b (a - n*b)),
+    apply int.dvd_antisymm,
+    trivial,
+    trivial,
+    exact p₆,
+    exact p₇,
+  norm_cast at p1,
+  exact p1
 end
+
 
 theorem prop5 (a b : ℤ) (h : b > 0): 
 ∃ q r : ℤ, a = q*b + r ∧ 0 ≤ r < b :=
