@@ -7,6 +7,11 @@ import data.num.lemmas
 
 universes u v
 
+#check @dvd_add_iff_left
+#check @dvd_mul_of_dvd_right
+#check @dvd_sub
+#check neg_dvd
+
 theorem prop4 (a b : ℤ) (h : a ≠ 0 ∧ b ≠ 0) (k : ℤ):
 ∀ n : ℤ, int.gcd a b = int.gcd b (a - n*b) :=
 begin
@@ -23,12 +28,16 @@ begin
     apply iff.intro,
       assume left,
         split,
-        exact left.right,
-        apply iff.elim_left (dvd_add_iff_right left.left),
-        simp,
-        apply dvd_mul_of_dvd_right left.right,
+          exact left.right,
+          apply iff.elim_left (dvd_add_iff_right left.left),
+          simp,
+          apply dvd_mul_of_dvd_right left.right,
       assume right,
-        sorry,
+        split,
+          apply iff.elim_right (dvd_add_iff_left (dvd_mul_of_dvd_right right.left (-n))),
+          simp,
+          exact right.right,
+          exact right.left,
   have p₄ : ∀ k : ℕ, ↑k ∣ b ∧ ↑k ∣ (a - n*b) ↔ ↑k ∣ gcd b (a - n*b),
     intro k,
     exact (dvd_gcd_iff ↑k b (a - n*b)).symm,
